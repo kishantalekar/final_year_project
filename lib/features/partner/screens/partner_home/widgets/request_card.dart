@@ -1,3 +1,4 @@
+import 'package:final_year_project/features/home/models/picup_request_model.dart';
 import 'package:final_year_project/features/partner/screens/partner_home/widgets/request_detail.dart';
 import 'package:final_year_project/utils/constants/colors.dart';
 import 'package:final_year_project/utils/constants/sizes.dart';
@@ -10,8 +11,10 @@ import 'package:iconsax/iconsax.dart';
 class RequestCard extends StatelessWidget {
   const RequestCard({
     super.key,
+    required this.request,
   });
 
+  final PickupRequestModel request;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -41,7 +44,7 @@ class RequestCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     maxLines: 2,
-                    'sadashivgad ,karwar halgejoog 58132',
+                    request.address,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 )
@@ -55,7 +58,7 @@ class RequestCard extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green.shade800),
               onPressed: () {
-                Get.to(() => RequestDetailScreen());
+                Get.to(() => RequestDetailScreen(request: request));
               },
               child: const Text("Take action ->"),
             ),

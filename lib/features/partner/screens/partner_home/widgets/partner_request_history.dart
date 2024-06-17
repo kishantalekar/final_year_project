@@ -1,10 +1,18 @@
+import 'package:final_year_project/core/custom_enums.dart';
+import 'package:final_year_project/features/home/models/picup_request_model.dart';
+import 'package:final_year_project/features/partner/controller/partner_controller.dart';
 import 'package:final_year_project/utils/constants/image_strings.dart';
+import 'package:final_year_project/utils/helpers/helper_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 import 'package:final_year_project/utils/constants/colors.dart';
 import 'package:final_year_project/utils/constants/sizes.dart';
+import 'package:get/get.dart';
+import 'package:http/retry.dart';
 import 'package:iconsax/iconsax.dart';
+
+import '../../../../home/models/scrap_item.dart';
 
 extension IndexedIterable<E> on Iterable<E> {
   Iterable<T> mapIndexed<T>(T Function(E e, int i) f) {
@@ -31,13 +39,14 @@ class _PartnerRequestHistoryState extends State<PartnerRequestHistory> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = PartnerController.instance;
     final List<CustomChip> customChipsList =
         ["All", "Completed", "Rejected", "Cancelled"]
             .mapIndexed((e, i) => CustomChip(
                   title: e,
-                  selected: selectedIndex,
+                  selected: controller.selectedIndex.value,
                   index: i,
-                  updateSelectedIndex: updateSelectedIndex,
+                  updateSelectedIndex: (val) => controller.selectedIndex(val),
                 ))
             .toList();
     return Scaffold(
@@ -50,37 +59,79 @@ class _PartnerRequestHistoryState extends State<PartnerRequestHistory> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // SizedBox(
+              //   height: 40,
+              //   child: ListView.separated(
+              //     itemCount: customChipsList.length,
+              //     separatorBuilder: (context, index) =>
+              //         const Gap(TSizes.spaceBtwItems),
+              //     scrollDirection: Axis.horizontal,
+              //     shrinkWrap: true,
+              //     itemBuilder: (context, index) {
+              //       if (index == 0) {
+              //         return Row(
+              //           children: [
+              //             const Gap(TSizes.spaceBtwItems),
+              //             customChipsList[index]
+              //           ],
+              //         );
+              //       }
+              //       return customChipsList[index];
+              //     },
+              //   ),
+              // ),
               SizedBox(
                 height: 40,
-                child: ListView.separated(
-                  itemCount: customChipsList.length,
-                  separatorBuilder: (context, index) =>
-                      const Gap(TSizes.spaceBtwItems),
-                  scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return Row(
-                        children: [
-                          const Gap(TSizes.spaceBtwItems),
-                          customChipsList[index]
-                        ],
-                      );
-                    }
-                    return customChipsList[index];
-                  },
+                child: Obx(
+                  () => ListView(
+                    scrollDirection: Axis.horizontal,
+                    shrinkWrap: true,
+                    children: ["All", "Completed", "Rejected", "Cancelled"]
+                        .mapIndexed((e, i) => CustomChip(
+                              title: e,
+                              selected: controller.selectedIndex.value,
+                              index: i,
+                              updateSelectedIndex: (val) =>
+                                  controller.selectedIndex(val),
+                            ))
+                        .toList(),
+                    // itemBuilder: (context, index) {
+                    //   if (index == 0) {
+                    //     return Row(
+                    //       children: [
+                    //         const Gap(TSizes.spaceBtwItems),
+                    //         customChipsList[index]
+                    //       ],
+                    //     );
+                    //   }
+                    //   return customChipsList[index];
+                    // },
+                  ),
                 ),
               ),
               const Gap(20),
-              ListView.separated(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemBuilder: ((context, index) {
-                    return const OrderCard();
-                  }),
-                  separatorBuilder: (context, index) =>
-                      const Gap(TSizes.spaceBtwItems),
-                  itemCount: 4)
+              Obx(
+                () {
+                  final filtered = controller.filteredPickups.value;
+                  if (filtered.length == 0)
+                    return SizedBox(
+                      height: THelperFunctions.screenHeight() * 0.7,
+                      child: Center(child: Text("List is empty")),
+                    );
+                  return ListView.separated(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemBuilder: ((context, index) {
+                        final item = filtered[index];
+                        return OrderCard(
+                          item: item,
+                        );
+                      }),
+                      separatorBuilder: (context, index) =>
+                          const Gap(TSizes.spaceBtwItems),
+                      itemCount: filtered.length);
+                },
+              )
             ],
           ),
         ),
@@ -92,10 +143,14 @@ class _PartnerRequestHistoryState extends State<PartnerRequestHistory> {
 class OrderCard extends StatelessWidget {
   const OrderCard({
     super.key,
+    required this.item,
   });
+  final PickupRequestModel item;
 
   @override
   Widget build(BuildContext context) {
+    final estimatedWeight =
+        THelperFunctions.calculateTotalQuantities(item.items);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -110,7 +165,7 @@ class OrderCard extends StatelessWidget {
                       topRight: Radius.circular(12))),
               padding: const EdgeInsets.all(TSizes.sm),
               child: Text(
-                "Completed",
+                item.pickupStatus.status,
                 style: Theme.of(context)
                     .textTheme
                     .bodyLarge!
@@ -146,10 +201,23 @@ class OrderCard extends StatelessWidget {
                               .bodyLarge!
                               .copyWith(color: Colors.grey)),
                       const Gap(2),
-                      Text("Kishan",
+                      Text(item.username,
                           style: Theme.of(context).textTheme.headlineSmall),
                     ],
-                  )
+                  ),
+                  Spacer(),
+                  Column(
+                    children: [
+                      Text("Total cost",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(color: Colors.grey)),
+                      const Gap(2),
+                      Text("₹${item.totalCost}",
+                          style: Theme.of(context).textTheme.headlineSmall),
+                    ],
+                  ),
                 ],
               ),
               const Gap(10),
@@ -167,7 +235,9 @@ class OrderCard extends StatelessWidget {
                               .bodyLarge!
                               .copyWith(color: Colors.green.shade700)),
                       const Gap(2),
-                      Text("jun 12 may ",
+                      Text(
+                          THelperFunctions.formatDateTime(
+                              item.scheduledTime.toIso8601String()),
                           style: Theme.of(context).textTheme.titleMedium),
                     ],
                   ),
@@ -177,7 +247,7 @@ class OrderCard extends StatelessWidget {
                       Text("Estimated weight",
                           style: Theme.of(context).textTheme.bodyLarge!),
                       const Gap(2),
-                      Text("25",
+                      Text(estimatedWeight,
                           style: Theme.of(context).textTheme.headlineSmall),
                     ],
                   )
@@ -196,7 +266,7 @@ class OrderCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       maxLines: 2,
-                      'sadashivgad ,karwar halgejoog 581328 halgejoog ',
+                      item.address,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   )
@@ -229,16 +299,19 @@ class CustomChip extends StatelessWidget {
       onTap: () {
         updateSelectedIndex(index);
       },
-      child: Chip(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(34),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 10),
+        child: Chip(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(34),
+          ),
+          label: Text(
+            title,
+            style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                color: selected == index ? TColors.light : TColors.black),
+          ),
+          backgroundColor: selected == index ? Colors.green.shade800 : null,
         ),
-        label: Text(
-          title,
-          style: Theme.of(context).textTheme.labelMedium!.copyWith(
-              color: selected == index ? TColors.light : TColors.black),
-        ),
-        backgroundColor: selected == index ? Colors.green.shade800 : null,
       ),
     );
   }

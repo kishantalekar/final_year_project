@@ -1,4 +1,3 @@
-
 import 'package:final_year_project/common/widgets/custom_shapes/container/rounded_container.dart';
 import 'package:final_year_project/features/home/models/scrap_item.dart';
 import 'package:final_year_project/features/partner/controller/manage_material_controller.dart';
@@ -233,7 +232,7 @@ class MaterialCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = MaterialManageController.instance;
-    final selected = item.title == controller.selectedMaterialTitle.value;
+    final selected = controller.selectedMaterialTitle.value == item.title;
     return ListTile(
       onTap: () {
         controller.updateSelectedMaterial(item.title, index);

@@ -42,7 +42,7 @@ class TLocalStorage {
 //
 // // Read data
 // String? username = localStorage.readData<String>('username');
-// print('Username: $username'); // Output: Username: JohnDoe
+
 //
 // // Remove data
 // localStorage.removeData('username');

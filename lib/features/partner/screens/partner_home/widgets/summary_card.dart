@@ -10,8 +10,14 @@ import 'package:iconsax/iconsax.dart';
 class SummaryCard extends StatelessWidget {
   const SummaryCard({
     super.key,
+    required this.completed,
+    required this.rejected,
+    required this.cancelled,
   });
 
+  final int completed;
+  final int rejected;
+  final int cancelled;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -44,19 +50,13 @@ class SummaryCard extends StatelessWidget {
               style: Theme.of(context).textTheme.labelLarge,
             ),
             const Gap(TSizes.spaceBtwItems / 2),
-            const Row(
+            Row(
               children: [
-                SummaryCountCard(
-                  title: 'Completed',
-                ),
-                Gap(10),
-                SummaryCountCard(
-                  title: "Rejected",
-                ),
-                Gap(10),
-                SummaryCountCard(
-                  title: "Cancelled",
-                ),
+                SummaryCountCard(title: 'Completed', count: completed),
+                const Gap(10),
+                SummaryCountCard(title: "Rejected", count: rejected),
+                const Gap(10),
+                SummaryCountCard(title: "Cancelled", count: cancelled),
               ],
             )
           ],

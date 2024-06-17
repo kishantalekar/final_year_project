@@ -111,7 +111,7 @@ class UserController extends GetxController {
   //   try {
   //     TFullScreenLoader.openLoadingPage('Processing', TImages.dockerAnimation);
   //     final isConnected = await NetworkManager.instance.isConnected();
-  //     print('internet connection is $isConnected');
+  //
   //     if (!isConnected) {
   //       TFullScreenLoader.stopLoading();
   //       return;

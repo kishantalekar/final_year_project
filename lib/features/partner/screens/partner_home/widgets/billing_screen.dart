@@ -1,15 +1,100 @@
 import 'package:final_year_project/common/widgets/custom_shapes/container/rounded_container.dart';
+import 'package:final_year_project/common/widgets/texts/section_heading.dart';
+import 'package:final_year_project/core/custom_enums.dart';
+import 'package:final_year_project/features/home/models/picup_request_model.dart';
+import 'package:final_year_project/features/home/models/scrap_item.dart';
+import 'package:final_year_project/features/partner/controller/partner_controller.dart';
+import 'package:final_year_project/utils/constants/enums.dart';
+import 'package:final_year_project/utils/helpers/helper_functions.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
+import '../../../../../utils/constants/colors.dart';
 import '../../../../../utils/constants/sizes.dart';
 
-class BillingScreen extends StatelessWidget {
-  const BillingScreen({super.key});
+class BillingScreen extends StatefulWidget {
+  BillingScreen({super.key, required this.request});
+  final PickupRequestModel request;
+
+  @override
+  State<BillingScreen> createState() => _BillingScreenState();
+}
+
+class _BillingScreenState extends State<BillingScreen> {
+  late Razorpay _razorpay;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize Razorpay instance
+    _razorpay = Razorpay();
+
+    // Register event listeners
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
+
+  @override
+  void dispose() {
+    // Dispose of Razorpay instance and unregister event listeners
+    _razorpay.clear();
+    //  / Re-initialize or clear the instance
+    super.dispose();
+  }
+
+  var options = {
+    'key': 'rzp_test_GcZZFDPPOjHtC4',
+    'amount': 1000,
+    'name': 'Ecobarter',
+    'description': 'Payment for scraps',
+    'prefill': {'contact': '8888888888', 'email': 'test@razorpay.com'}
+  };
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    // Handle payment success
+    print("Payment successful: ${response.paymentId}");
+    PartnerController.instance.completePickup(widget.request);
+    // Perform actions on success, e.g., update UI, navigate to next screen, etc.
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    // Handle payment failure
+    print("Payment error: ${response.code} - ${response.message}");
+    // Perform actions on failure, e.g., show error message, retry payment, etc.
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    // Handle external wallet selection
+    print("External wallet selected: ${response.walletName}");
+    // Perform actions for external wallet, e.g., initiate payment through the wallet, etc.
+  }
 
   @override
   Widget build(BuildContext context) {
+    final controller = PartnerController.instance;
+
+    void handlePay() {
+      var options = {
+        'key': 'rzp_test_MnsRpPALxLbn0H',
+        'amount': (widget.request.totalCost * 100).toInt(), // Amount in paise
+        'name': 'Ecobarter',
+        'description': 'Payment for scraps',
+        'prefill': {'contact': '8888888888', 'email': 'test@razorpay.com'}
+      };
+      try {
+        _razorpay.open(options);
+      } catch (e) {
+        print("Error opening Razorpay: $e");
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -21,131 +106,169 @@ class BillingScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(TSizes.defaultSpace),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const CustomerDetails(),
+              CustomerDetails(
+                username: "Kishan",
+                time: THelperFunctions.getFormattedDate(
+                    widget.request.scheduledTime),
+                address: widget.request.address,
+              ),
               const Gap(TSizes.spaceBtwItems),
               const Divider(),
               const Gap(TSizes.spaceBtwItems),
-              const BillSummary(),
+              BillSummary(
+                totalMaterial: widget.request.items.length,
+                totalQuantity: THelperFunctions.calculateTotalQuantities(
+                    widget.request.items),
+                totalCost: widget.request.totalCost,
+              ),
               const Gap(TSizes.spaceBtwItems),
               const Divider(),
               const Gap(TSizes.spaceBtwItems),
               FittedBox(
                 child: DataTable(
-                    border: TableBorder(
-                      borderRadius: BorderRadius.circular(30),
+                  border: TableBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  headingRowColor: MaterialStateProperty.resolveWith<Color?>(
+                      (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.hovered)) {
+                      return Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.08);
+                    }
+                    return Colors.green.shade100; // Use the default value.
+                  }),
+                  columns: [
+                    DataColumn(
+                      label: Text(
+                        "Material",
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
                     ),
-                    headingRowColor: MaterialStateProperty.resolveWith<Color?>(
-                        (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.hovered)) {
-                        return Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withOpacity(0.08);
-                      }
-                      return Colors.green.shade100; // Use the default value.
-                    }),
-                    columns: [
-                      DataColumn(
-                        label: Text(
-                          "Material",
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
+                    DataColumn(
+                      label: Text(
+                        "Rate",
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      DataColumn(
-                        label: Text(
-                          "Rate",
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        "Qty",
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      DataColumn(
-                        label: Text(
-                          "Qty",
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        "Amount",
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      DataColumn(
-                        label: Text(
-                          "Amount",
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
+                    ),
+                  ],
+                  rows: widget.request.items
+                      .map((item) => DataRow(cells: [
+                            DataCell(Text(
+                              item.title,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            )),
+                            DataCell(
+                              Text(
+                                "${item.cost}",
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ),
+                            DataCell(Text(
+                              item.unitType == UnitType.kg
+                                  ? "${item.kg}/kg"
+                                  : "${item.pcs}/pieces",
+                              style: Theme.of(context).textTheme.titleMedium,
+                            )),
+                            DataCell(Text(
+                              (item.cost * item.kg).toString(),
+                              style: Theme.of(context).textTheme.titleMedium,
+                            )),
+                          ]))
+                      .toList(),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(TSizes.defaultSpace),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Total",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Text(
+                      "₹${widget.request.totalCost}",
+                      style: Theme.of(context).textTheme.titleLarge,
+                    )
+                  ],
+                ),
+              ),
+              Text(
+                "Payment method ",
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              Obx(
+                () => Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(
+                        'Cash on Delivery',
+                        style: Theme.of(context).textTheme.bodyLarge,
                       ),
-                    ],
-                    rows: [
-                      DataRow(cells: [
-                        DataCell(Text(
-                          "Aluminium",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        )),
-                        DataCell(
-                          Text(
-                            "57/kg",
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ),
-                        DataCell(Text(
-                          "2 kg",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        )),
-                        DataCell(Text(
-                          "114",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        )),
-                      ]),
-                      DataRow(cells: [
-                        DataCell(Text(
-                          "Aluminium",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        )),
-                        DataCell(
-                          Text(
-                            "57/kg",
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ),
-                        DataCell(Text(
-                          "2 kg",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        )),
-                        DataCell(Text(
-                          "114",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        )),
-                      ]),
-                      DataRow(cells: [
-                        DataCell(Text(
-                          "Aluminium",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        )),
-                        DataCell(
-                          Text(
-                            "57/kg",
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ),
-                        DataCell(Text(
-                          "2 kg",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        )),
-                        DataCell(Text(
-                          "114",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        )),
-                      ]),
-                    ]),
+                      leading: Radio<PaymentMethods>(
+                        activeColor: TColors.primary,
+                        value: PaymentMethods.cod,
+                        groupValue: controller.paymentMethod.value,
+                        onChanged: (value) =>
+                            controller.updatePaymentMethod(value),
+                      ),
+                    ),
+                    ListTile(
+                      title: Text(
+                        'razor pay',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      leading: Radio<PaymentMethods>(
+                        activeColor: TColors.primary,
+                        value: PaymentMethods.razorPay,
+                        groupValue: controller.paymentMethod.value,
+                        onChanged: (value) =>
+                            controller.updatePaymentMethod(value),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(
                 height: 40,
-              )
+              ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(TSizes.defaultSpace),
-        child: ElevatedButton(
-          child: const Text("Complete"),
-          onPressed: () {},
+      bottomNavigationBar: Obx(
+        () => Padding(
+          padding: const EdgeInsets.all(TSizes.defaultSpace),
+          child: controller.paymentMethod.value == PaymentMethods.cod
+              ? ElevatedButton(
+                  child: const Text("Complete"),
+                  onPressed: () =>
+                      PartnerController.instance.completePickup(widget.request),
+                )
+              : ElevatedButton(
+                  child: Text(
+                      "Proceed to pay ₹${widget.request.totalCost} with Razorpay"),
+                  onPressed: () {
+                    handlePay();
+                  },
+                ),
         ),
       ),
     );
@@ -155,7 +278,14 @@ class BillingScreen extends StatelessWidget {
 class BillSummary extends StatelessWidget {
   const BillSummary({
     super.key,
+    required this.totalCost,
+    required this.totalQuantity,
+    required this.totalMaterial,
   });
+
+  final double totalCost;
+  final String totalQuantity;
+  final int totalMaterial;
 
   @override
   Widget build(BuildContext context) {
@@ -164,24 +294,23 @@ class BillSummary extends StatelessWidget {
       backgroundColor: Colors.lightBlue.shade100.withOpacity(0.5),
       child: Column(
         children: [
-          const BillSummaryItem(
+          BillSummaryItem(
             title: "Total material",
-            subTitle: "12",
+            subTitle: "$totalMaterial",
           ),
           const Gap(
             10,
           ),
-          const BillSummaryItem(
-              title: 'Total qunatity', subTitle: '12kg,7 pieces'),
+          BillSummaryItem(title: 'Total qunatity', subTitle: '$totalQuantity'),
           const Gap(
             10,
           ),
           Divider(
             color: Colors.blue.shade200,
           ),
-          const BillSummaryItem(
+          BillSummaryItem(
             title: 'Total',
-            subTitle: '\$570',
+            subTitle: '₹$totalCost',
             bold: true,
           )
         ],
@@ -226,7 +355,13 @@ class BillSummaryItem extends StatelessWidget {
 class CustomerDetails extends StatelessWidget {
   const CustomerDetails({
     super.key,
+    required this.username,
+    required this.time,
+    required this.address,
   });
+  final String username;
+  final String time;
+  final String address;
 
   @override
   Widget build(BuildContext context) {
@@ -237,12 +372,12 @@ class CustomerDetails extends StatelessWidget {
           children: [
             Text(
               maxLines: 2,
-              'Kishan talekar',
+              username,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             Text(
               maxLines: 2,
-              '27,oct 2024',
+              time,
               style: Theme.of(context).textTheme.bodyMedium,
             )
           ],
@@ -258,7 +393,7 @@ class CustomerDetails extends StatelessWidget {
             Expanded(
               child: Text(
                 maxLines: 2,
-                'sadashivgad ,karwar halgejoog 581328 halgejoog ',
+                address,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             )

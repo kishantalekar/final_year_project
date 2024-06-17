@@ -1,25 +1,22 @@
 import 'package:final_year_project/common/widgets/custom_shapes/container/rounded_container.dart';
+import 'package:final_year_project/core/custom_enums.dart';
+import 'package:final_year_project/features/home/models/picup_request_model.dart';
+import 'package:final_year_project/features/partner/controller/partner_controller.dart';
 import 'package:final_year_project/features/partner/screens/partner_home/widgets/billing_screen.dart';
 import 'package:final_year_project/utils/constants/colors.dart';
 import 'package:final_year_project/utils/constants/sizes.dart';
+import 'package:final_year_project/utils/helpers/helper_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
-
 class RequestDetailScreen extends StatelessWidget {
-  RequestDetailScreen({super.key});
-  final list = [
-    // ScrapItem('Brass', '300/kg'),
-    // ScrapItem('Aluminium', '300/kg'),
-    // ScrapItem('E-waste', '300/kg'),
-    // ScrapItem('E-waste', '300/kg'),
-    // ScrapItem('E-waste', '300/kg'),
-    // ScrapItem('E-waste', '300/kg'),
-  ];
+  const RequestDetailScreen({super.key, required this.request});
+  final PickupRequestModel request;
   @override
   Widget build(BuildContext context) {
+    final controller = PartnerController.instance;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -47,9 +44,9 @@ class RequestDetailScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const Gap(TSizes.spaceBtwItems),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [Text('Name'), Text('Vikram')],
+                    children: [Text('Name'), Text(request.username)],
                   ),
                   const Gap(TSizes.sm),
                   RoundedContainer(
@@ -66,7 +63,7 @@ class RequestDetailScreen extends StatelessWidget {
                         ),
                         const Spacer(),
                         Text(
-                          '+919353167354',
+                          '+91${request.number}',
                           style: Theme.of(context).textTheme.bodyLarge,
                         )
                       ],
@@ -84,19 +81,20 @@ class RequestDetailScreen extends StatelessWidget {
                   Text('Pickup request details',
                       style: Theme.of(context).textTheme.headlineSmall!),
                   const Gap(TSizes.spaceBtwItems),
-                  const PickupRequestItem(
+                  PickupRequestItem(
                     title: "Request Raised time",
-                    subTitle: "12:57 pm",
+                    subTitle: THelperFunctions.getFormattedDate(
+                        request.scheduledTime),
                   ),
                   const Gap(TSizes.spaceBtwItems),
-                  const PickupRequestItem(
+                  PickupRequestItem(
                     title: "Pickup location ",
-                    subTitle: "Near sadashivgad  581328 ",
+                    subTitle: request.address,
                   ),
                   const Gap(TSizes.spaceBtwItems),
-                  const PickupRequestItem(
+                  PickupRequestItem(
                     title: "Request Id",
-                    subTitle: "1234567891001",
+                    subTitle: request.id,
                   ),
                 ],
               ),
@@ -114,18 +112,22 @@ class RequestDetailScreen extends StatelessWidget {
                     spacing: TSizes
                         .spaceBtwInputFields, // gap between adjacent chips
                     runSpacing: TSizes.spaceBtwItems, // gap between lines
-                    children: list
-                        .map((e) => Chip(
-                              backgroundColor: Colors.white,
-                              label: Column(
-                                children: [
-                                  Text(e.title),
-                                  const Gap(10),
-                                  Text(e.subtitle),
-                                ],
-                              ),
-                            ))
-                        .toList(),
+                    children: request.items.map((e) {
+                      final quantity = e.unitType == UnitType.kg ? e.kg : e.pcs;
+                      return RoundedContainer(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
+                        showBorder: true,
+                        child: Column(
+                          children: [
+                            Text(
+                              "${e.title} ${quantity}/${e.unitType.name}",
+                              style: Theme.of(context).textTheme.labelLarge,
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   )
                 ],
               ),
@@ -152,12 +154,13 @@ class RequestDetailScreen extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(TSizes.defaultSpace),
-          child: true
+          child: request.pickupStatus != PickupStatus.PENDING
               ? ElevatedButton(
                   onPressed: () {
-                    Get.to(() => const BillingScreen());
+                    final updated = controller.updatedScrapList(request);
+                    Get.to(() => BillingScreen(request: updated));
                   },
-                  child: const Text("Generate bill"),
+                  child: const Text("Got to Checkout"),
                 )
               : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -168,7 +171,8 @@ class RequestDetailScreen extends StatelessWidget {
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Colors.red)),
-                        onPressed: () {},
+                        onPressed: () => controller.updatePickStatus(
+                            request, PickupStatus.REJECTED),
                         child: Text(
                           "Reject",
                           style: Theme.of(context)
@@ -181,7 +185,8 @@ class RequestDetailScreen extends StatelessWidget {
                     const Gap(TSizes.defaultSpace),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () => controller.updatePickStatus(
+                            request, PickupStatus.ACCEPTED),
                         child: const Text("Accept"),
                       ),
                     ),

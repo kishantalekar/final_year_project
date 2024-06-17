@@ -33,7 +33,6 @@ class LoginController extends GetxController {
       //check internet connectivity
 
       final isConnected = await NetworkManager.instance.isConnected();
-      print('internet connection is $isConnected');
       if (!isConnected) {
         TFullScreenLoader.stopLoading();
         return;
@@ -64,7 +63,7 @@ class LoginController extends GetxController {
       //     title: 'Congratulations',
       //     message: 'Your account has been created! verify email to continue');
     } catch (e) {
-      print(e);
+      print("Login controller error : $e");
       TFullScreenLoader.stopLoading();
       TFullScreenLoader.errorSnackBar(title: 'oh Snap!', message: e.toString());
     }

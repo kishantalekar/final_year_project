@@ -2,7 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/custom_enums.dart';
+import '../../features/home/models/scrap_item.dart';
+
 class THelperFunctions {
+  static String calculateTotalQuantities(List<ScrapItem> scrapItems) {
+    double totalKg = 0.0;
+    double totalPcs = 0.0;
+
+    for (var item in scrapItems) {
+      if (item.unitType == UnitType.kg) {
+        totalKg += item.kg;
+      } else {
+        totalPcs += item.pcs;
+      }
+    }
+    if (totalPcs == 0.0) return "$totalKg kg";
+    if (totalKg == 0.0) return "$totalPcs pcs";
+    return "$totalKg kg, $totalPcs pcs";
+  }
+
   static Color? getColor(String value) {
     /// Define your product specific colors here and it will match the attribute colors and show specific 🟠🟡🟢🔵🟣🟤
 
@@ -94,8 +113,18 @@ class THelperFunctions {
     return MediaQuery.of(Get.context!).size.width;
   }
 
-  static String getFormattedDate(DateTime date, {String format = 'dd MMM yyyy'}) {
+  static String getFormattedDate(DateTime date,
+      {String format = 'dd MMM yyyy'}) {
     return DateFormat(format).format(date);
+  }
+
+  static String formatDateTime(String datetimeStr) {
+    // Parse the datetime string
+    final datetime = DateTime.parse(datetimeStr);
+
+    // Format the datetime object in the desired format
+    final formattedDate = DateFormat('d MMM yyyy').format(datetime);
+    return formattedDate;
   }
 
   static List<T> removeDuplicates<T>(List<T> list) {
@@ -105,7 +134,8 @@ class THelperFunctions {
   static List<Widget> wrapWidgets(List<Widget> widgets, int rowSize) {
     final wrappedList = <Widget>[];
     for (var i = 0; i < widgets.length; i += rowSize) {
-      final rowChildren = widgets.sublist(i, i + rowSize > widgets.length ? widgets.length : i + rowSize);
+      final rowChildren = widgets.sublist(
+          i, i + rowSize > widgets.length ? widgets.length : i + rowSize);
       wrappedList.add(Row(children: rowChildren));
     }
     return wrappedList;

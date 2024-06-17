@@ -1,3 +1,4 @@
+import 'package:final_year_project/features/home/controller/booking_controller.dart';
 import 'package:final_year_project/features/home/screens/booking/scrap_collector_detail.dart';
 import 'package:final_year_project/utils/constants/colors.dart';
 import 'package:final_year_project/utils/constants/image_strings.dart';
@@ -5,6 +6,7 @@ import 'package:final_year_project/utils/constants/sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:iconsax/iconsax.dart';
 
 class ScrapCollectorSearch extends StatelessWidget {
@@ -12,19 +14,30 @@ class ScrapCollectorSearch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = BookingController.instance;
     return Scaffold(
       // bottomSheet: Text("botom sheet"),
+      appBar: AppBar(
+        title: const Text('Choose your scrap collector'),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(TSizes.defaultSpace),
           child: Column(
             children: [
-              const Text('Choose your scrap collector'),
-              ListView.separated(
+              // const Text('Choose your scrap collector'),
+              Obx(
+                () => ListView.separated(
+                  physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
+                  separatorBuilder: (_, __) => const Gap(TSizes.spaceBtwItems),
+                  itemCount: controller.allPickupsPatnerGetter.length,
                   itemBuilder: (context, index) {
+                    final pickupPartner =
+                        controller.allPickupsPatnerGetter[index];
                     return GestureDetector(
-                      onTap: () => Get.to(() => const ScrapCollectorDetailPage()),
+                      onTap: () => Get.to(() => ScrapCollectorDetailPage(
+                          pickupPartner: pickupPartner)),
                       child: Card(
                         elevation: TSizes.cardElevation,
                         color: TColors.white,
@@ -34,14 +47,18 @@ class ScrapCollectorSearch extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
-                                  const Image(
-                                    image: AssetImage(TImages.user),
-                                    width: 40,
-                                    height: 40,
+                                  CircleAvatar(
+                                    backgroundImage: pickupPartner
+                                                .profilePicture.length >
+                                            4
+                                        ? NetworkImage(
+                                                pickupPartner.profilePicture)
+                                            as ImageProvider
+                                        : AssetImage(TImages.user),
                                   ),
                                   const Gap(TSizes.spaceBtwItems),
                                   Text(
-                                    'Ravi',
+                                    pickupPartner.username,
                                     style:
                                         Theme.of(context).textTheme.titleLarge,
                                   ),
@@ -55,7 +72,7 @@ class ScrapCollectorSearch extends StatelessWidget {
                                   ),
                                   const Gap(TSizes.spaceBtwItems),
                                   Text(
-                                    'sadashivgad,karwar 581328',
+                                    pickupPartner.address,
                                     style:
                                         Theme.of(context).textTheme.bodyMedium,
                                   ),
@@ -69,7 +86,7 @@ class ScrapCollectorSearch extends StatelessWidget {
                                   ),
                                   const Gap(TSizes.spaceBtwItems),
                                   Text(
-                                    '+91 987654321',
+                                    pickupPartner.phoneNumber,
                                     style:
                                         Theme.of(context).textTheme.bodyMedium,
                                   ),
@@ -81,8 +98,8 @@ class ScrapCollectorSearch extends StatelessWidget {
                       ),
                     );
                   },
-                  separatorBuilder: (_, __) => const Gap(TSizes.spaceBtwItems),
-                  itemCount: 4)
+                ),
+              )
             ],
           ),
         ),

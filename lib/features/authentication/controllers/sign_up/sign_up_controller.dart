@@ -24,6 +24,7 @@ class SignUpController extends GetxController {
   final password = TextEditingController();
   final firstname = TextEditingController();
   final phoneNumber = TextEditingController();
+  final address = TextEditingController();
 
   GlobalKey<FormState> signFormKey =
       GlobalKey<FormState>(debugLabel: "singformkey");
@@ -35,7 +36,6 @@ class SignUpController extends GetxController {
 
       //check internet connectivity
       final isConnected = await NetworkManager.instance.isConnected();
-      print('internet connection is $isConnected');
       if (!isConnected) {
         TFullScreenLoader.stopLoading();
         TFullScreenLoader.warningSnackBar(
@@ -55,12 +55,12 @@ class SignUpController extends GetxController {
       // save authencticated user to firestore
 
       final newUser = UserModel(
-        id: userCredential.user!.uid,
-        username: username.text,
-        email: email.text,
-        phoneNumber: phoneNumber.text,
-        profilePicture: '',
-      );
+          id: userCredential.user!.uid,
+          username: username.text,
+          email: email.text,
+          phoneNumber: phoneNumber.text,
+          profilePicture: '',
+          address: address.text);
       final UserRepository userRepository = Get.put(UserRepository());
       await userRepository.saveUserData(newUser);
       TFullScreenLoader.successSnackBar(

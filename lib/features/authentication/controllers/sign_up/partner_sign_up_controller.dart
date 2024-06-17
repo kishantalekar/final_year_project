@@ -35,7 +35,6 @@ class PartnerSignupController extends GetxController {
 
       //check internet connectivity
       final isConnected = await NetworkManager.instance.isConnected();
-      print('internet connection is $isConnected');
       if (!isConnected) {
         TFullScreenLoader.stopLoading();
         TFullScreenLoader.warningSnackBar(

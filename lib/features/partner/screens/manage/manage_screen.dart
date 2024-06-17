@@ -5,6 +5,7 @@ import 'package:final_year_project/utils/constants/sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
 
 class MaterialsManageScreen extends StatefulWidget {
   const MaterialsManageScreen({super.key});
@@ -29,9 +30,11 @@ class _MaterialsManageScreenState extends State<MaterialsManageScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                      '${controller.partnerScrapItems.value.length} materials ',
-                      style: Theme.of(context).textTheme.bodyLarge!),
+                  Obx(
+                    () => Text(
+                        '${controller.partnerScrapItems.value.length} materials ',
+                        style: Theme.of(context).textTheme.bodyLarge!),
+                  ),
                   GestureDetector(
                     onTap: () => Get.to(() => const AddMaterialScreen()),
                     child: Row(
@@ -56,6 +59,7 @@ class _MaterialsManageScreenState extends State<MaterialsManageScreen> {
               const Gap(18),
               Obx(
                 () => ListView.separated(
+                    physics: NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: controller.partnerScrapItems.value.length,
                     separatorBuilder: (context, index) => const Gap(10),
@@ -70,6 +74,9 @@ class _MaterialsManageScreenState extends State<MaterialsManageScreen> {
                         trailing: Text(" ${item.cost}/${item.unitType.name}"),
                       );
                     }),
+              ),
+              SizedBox(
+                height: 100,
               )
             ],
           ),

@@ -1,4 +1,4 @@
-
+import 'package:final_year_project/data/repo/auth/auth_repository.dart';
 import 'package:final_year_project/data/repo/partner/partner_repository.dart';
 import 'package:final_year_project/features/partner/controller/partner_controller.dart';
 import 'package:final_year_project/features/partner/screens/manage/manage_screen.dart';
@@ -59,16 +59,14 @@ class MaterialManageController extends GetxController {
   }
 
   final RxList<ScrapItem> partnerScrapItems = <ScrapItem>[].obs;
-  void initializePartnerScrapItems() {
-    partnerScrapItems.value =
-        PartnerController.instance.partner.value.scrapItems;
-    print(partnerScrapItems);
+
+  void initializePartnerScrapItems() async {
+    final data = await PartnerRepository.instance.fetchUserDetails();
+    partnerScrapItems.value = data.scrapItems;
   }
 
   static MaterialManageController get instance => Get.find();
   final TextEditingController rate = TextEditingController();
-
-  final PartnerController partnerController = PartnerController.instance;
 
   var selectedMaterialTitle = "Select".obs;
   var selectedMaterialItem = TMaterials.materials[0].obs;
@@ -111,9 +109,11 @@ class MaterialManageController extends GetxController {
         'scrapItems': previousScrapItems,
       };
       await partnerRepository.updateSingleField(scrapItems);
+
       TFullScreenLoader.stopLoading();
 
-      Get.to(() => const MaterialsManageScreen());
+      // Get.offAll(() => const ());
+      Get.back();
       TFullScreenLoader.successSnackBar(
           title: "Item added ", message: "Material added successfully");
     } catch (e) {

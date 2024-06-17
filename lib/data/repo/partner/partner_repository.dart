@@ -50,10 +50,32 @@ class PartnerRepository extends GetxController {
     } on PlatformException catch (e) {
       throw TPlatformException(e.code).message;
     } catch (e) {
-      print(e);
       throw "Something went wrong";
     }
   }
+
+  Future<List<PartnerModel>> fetchAllPartners() async {
+    try {
+      final querySnapshot = await _db.collection('Partner').get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs
+            .map((doc) => PartnerModel.fromMap(doc.data()))
+            .toList();
+      } else {
+        return [];
+      }
+    } on FirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException {
+      throw const TFormatException();
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw "Something went wrong";
+    }
+  }
+
   //update user detail
 
   Future<void> updateUserDetails(UserModel updatedUser) async {
@@ -80,13 +102,15 @@ class PartnerRepository extends GetxController {
           .doc(AuthenticationRepository.instance.currentUser?.uid)
           .update(json);
     } on FirebaseException catch (e) {
-      print(e);
+      print("Partner repository error : $e");
       throw TFirebaseException(e.code).message;
     } on FormatException {
       throw const TFormatException();
     } on PlatformException catch (e) {
+      print("Partner repository error : $e");
       throw TPlatformException(e.code).message;
     } catch (e) {
+      print("Partner repository error : $e");
       throw "Something went wrong";
     }
   }

@@ -2,6 +2,7 @@ import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:easy_stepper/easy_stepper.dart';
 import 'package:final_year_project/common/widgets/custom_shapes/container/rounded_container.dart';
 import 'package:final_year_project/features/home/controller/booking_controller.dart';
+import 'package:final_year_project/features/home/controller/user_controller.dart';
 import 'package:final_year_project/features/home/screens/booking/scrap_collector_search.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -163,7 +164,7 @@ class _BookingScreenState extends State<BookingScreen> {
                               style: Theme.of(context).textTheme.labelMedium,
                             ),
                             Text(
-                              'sadashivgad,karwar 581328',
+                              UserController.instance.user.value.address,
                               style: Theme.of(context).textTheme.titleSmall,
                             ),
                           ],

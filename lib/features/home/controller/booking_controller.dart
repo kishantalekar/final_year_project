@@ -1,12 +1,15 @@
 import 'package:final_year_project/core/custom_enums.dart';
 import 'package:final_year_project/data/repo/booking/booking.dart';
+import 'package:final_year_project/data/repo/partner/partner_repository.dart';
 import 'package:final_year_project/features/home/controller/user_controller.dart';
 import 'package:final_year_project/features/home/models/picup_request_model.dart';
 import 'package:final_year_project/features/home/models/scrap_item.dart';
 import 'package:final_year_project/features/home/screens/home_screens.dart';
+import 'package:final_year_project/features/partner/model/partner_model.dart';
 import 'package:final_year_project/utils/constants/image_strings.dart';
 import 'package:final_year_project/utils/popups/loaders.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart';
 
 class BookingController extends GetxController {
   static BookingController get instance => Get.find();
@@ -19,6 +22,14 @@ class BookingController extends GetxController {
         const Duration(hours: 24),
       )
       .obs;
+  var selectedSubCategories = <ScrapItem>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    getAllPickupPartners();
+  }
+
   void toggleCategories(Categories val) {
     if (selectedCategories.contains(val)) {
       selectedCategories.remove(val);
@@ -26,8 +37,6 @@ class BookingController extends GetxController {
       selectedCategories.add(val);
     }
   }
-
-  var selectedSubCategories = <ScrapItem>[].obs;
 
   void addSubCategories(ScrapItem item) {
     int index =
@@ -80,7 +89,7 @@ class BookingController extends GetxController {
     }
   }
 
-  void ScheduleScrapCollection(String partnerId) async {
+  void ScheduleScrapCollection(PartnerModel partner) async {
     try {
       TFullScreenLoader.openLoadingPage(
           "Scheduling Your requests", TImages.dockerAnimation);
@@ -89,13 +98,20 @@ class BookingController extends GetxController {
         id: "",
         items: List<ScrapItem>.from(selectedSubCategories),
         scheduledTime: selectedBookingDate.value,
-        address: "xyz",
+        address: userController.user.value.address,
         userId: userController.user.value.id,
-        partnerId: partnerId,
+        partnerId: partner.id,
+        username: userController.user.value.username,
+        partnername: partner.username,
+        pickupTime: selectedBookingDate.value,
+        number: userController.user.value.phoneNumber,
       );
       await bookingRepo.schedulePickupRequest(request);
       TFullScreenLoader.stopLoading();
       TFullScreenLoader.successSnackBar(title: "Success schedule your pickup");
+      selectedSubCategories.value = [];
+      selectedCategories.value = [];
+      selectedBookingDate.value = DateTime.now();
       Get.to(() => const HomeScreen());
     } catch (e) {
       TFullScreenLoader.stopLoading();
@@ -115,4 +131,19 @@ class BookingController extends GetxController {
           title: "error while fetching requests", message: e.toString());
     }
   }
+
+  final partnerRepository = Get.put(PartnerRepository());
+  var allPickupPartners = <PartnerModel>[].obs;
+  void getAllPickupPartners() async {
+    try {
+      final data = await partnerRepository.fetchAllPartners();
+      allPickupPartners.value = data;
+      print(allPickupPartners.value);
+    } catch (e) {
+      TFullScreenLoader.errorSnackBar(
+          title: "error while fetching requests", message: e.toString());
+    }
+  }
+
+  RxList<PartnerModel> get allPickupsPatnerGetter => allPickupPartners;
 }
