@@ -7,7 +7,7 @@ import 'package:final_year_project/features/home/models/scrap_item.dart';
 
 class PartnerModel {
   final String id;
-  final String username;
+  String username;
   final String email;
   final String phoneNumber;
   final String profilePicture;

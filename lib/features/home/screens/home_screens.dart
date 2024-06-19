@@ -3,6 +3,7 @@ import 'package:final_year_project/data/repo/auth/auth_repository.dart';
 import 'package:final_year_project/features/home/controller/booking_controller.dart';
 import 'package:final_year_project/features/home/controller/user_controller.dart';
 import 'package:final_year_project/features/home/screens/booking/booking.dart';
+import 'package:final_year_project/features/home/screens/profile/customer_profile_screen.dart';
 import 'package:final_year_project/features/home/screens/request/pickup_request.dart';
 import 'package:final_year_project/utils/constants/colors.dart';
 import 'package:final_year_project/utils/constants/image_strings.dart';
@@ -129,9 +130,7 @@ class HomeScreen extends StatelessWidget {
                     ?.copyWith(color: TColors.white),
               ),
               // selected: _selectedIndex == 2,
-              onTap: () {
-                Navigator.pop(context);
-              },
+              onTap: () => Get.to(ProfileScreen()),
             ),
             ListTile(
               title: Text(
