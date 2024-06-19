@@ -1,6 +1,7 @@
 import 'package:final_year_project/core/custom_enums.dart';
 import 'package:final_year_project/features/home/models/picup_request_model.dart';
 import 'package:final_year_project/features/partner/controller/partner_controller.dart';
+import 'package:final_year_project/features/partner/screens/partner_home/widgets/partner_request_history_detail_screen.dart';
 import 'package:final_year_project/utils/constants/image_strings.dart';
 import 'package:final_year_project/utils/helpers/helper_functions.dart';
 import 'package:flutter/material.dart';
@@ -151,131 +152,134 @@ class OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final estimatedWeight =
         THelperFunctions.calculateTotalQuantities(item.items);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Gap(10),
-            Container(
-              decoration: const BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12))),
-              padding: const EdgeInsets.all(TSizes.sm),
-              child: Text(
-                item.pickupStatus.status,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge!
-                    .copyWith(color: TColors.white),
-              ),
-            ),
-          ],
-        ),
-        Container(
-          padding: const EdgeInsets.all(TSizes.md),
-          decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.grey,
-              ),
-              borderRadius: BorderRadius.circular(22)),
-          child: Column(
+    return GestureDetector(
+      onTap: () => Get.to(() => PartnerRequestHistoryDetailScreen(item: item)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  const Image(
-                    image: AssetImage(
-                      TImages.user,
-                    ),
-                    width: 60,
-                    height: 60,
-                  ),
-                  const Gap(10),
-                  Column(
-                    children: [
-                      Text("Placed by",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge!
-                              .copyWith(color: Colors.grey)),
-                      const Gap(2),
-                      Text(item.username,
-                          style: Theme.of(context).textTheme.headlineSmall),
-                    ],
-                  ),
-                  Spacer(),
-                  Column(
-                    children: [
-                      Text("Total cost",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge!
-                              .copyWith(color: Colors.grey)),
-                      const Gap(2),
-                      Text("₹${item.totalCost}",
-                          style: Theme.of(context).textTheme.headlineSmall),
-                    ],
-                  ),
-                ],
+              const Gap(10),
+              Container(
+                decoration: const BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12))),
+                padding: const EdgeInsets.all(TSizes.sm),
+                child: Text(
+                  item.pickupStatus.status,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyLarge!
+                      .copyWith(color: TColors.white),
+                ),
               ),
-              const Gap(10),
-              const Divider(),
-              const Gap(10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Pickup date and time",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge!
-                              .copyWith(color: Colors.green.shade700)),
-                      const Gap(2),
-                      Text(
-                          THelperFunctions.formatDateTime(
-                              item.scheduledTime.toIso8601String()),
-                          style: Theme.of(context).textTheme.titleMedium),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text("Estimated weight",
-                          style: Theme.of(context).textTheme.bodyLarge!),
-                      const Gap(2),
-                      Text(estimatedWeight,
-                          style: Theme.of(context).textTheme.headlineSmall),
-                    ],
-                  )
-                ],
-              ),
-              const Gap(10),
-              const Divider(),
-              const Gap(10),
-              Row(
-                children: [
-                  Icon(
-                    Iconsax.location,
-                    color: Colors.green.shade800,
-                  ),
-                  const Gap(TSizes.spaceBtwItems),
-                  Expanded(
-                    child: Text(
-                      maxLines: 2,
-                      item.address,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  )
-                ],
-              )
             ],
           ),
-        ),
-      ],
+          Container(
+            padding: const EdgeInsets.all(TSizes.md),
+            decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.grey,
+                ),
+                borderRadius: BorderRadius.circular(22)),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    const Image(
+                      image: AssetImage(
+                        TImages.user,
+                      ),
+                      width: 60,
+                      height: 60,
+                    ),
+                    const Gap(10),
+                    Column(
+                      children: [
+                        Text("Placed by",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(color: Colors.grey)),
+                        const Gap(2),
+                        Text(item.username,
+                            style: Theme.of(context).textTheme.headlineSmall),
+                      ],
+                    ),
+                    Spacer(),
+                    Column(
+                      children: [
+                        Text("Total cost",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(color: Colors.grey)),
+                        const Gap(2),
+                        Text("₹${item.totalCost}",
+                            style: Theme.of(context).textTheme.headlineSmall),
+                      ],
+                    ),
+                  ],
+                ),
+                const Gap(10),
+                const Divider(),
+                const Gap(10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Pickup date and time",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(color: Colors.green.shade700)),
+                        const Gap(2),
+                        Text(
+                            THelperFunctions.formatDateTime(
+                                item.scheduledTime.toIso8601String()),
+                            style: Theme.of(context).textTheme.titleMedium),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text("Estimated weight",
+                            style: Theme.of(context).textTheme.bodyLarge!),
+                        const Gap(2),
+                        Text(estimatedWeight,
+                            style: Theme.of(context).textTheme.headlineSmall),
+                      ],
+                    )
+                  ],
+                ),
+                const Gap(10),
+                const Divider(),
+                const Gap(10),
+                Row(
+                  children: [
+                    Icon(
+                      Iconsax.location,
+                      color: Colors.green.shade800,
+                    ),
+                    const Gap(TSizes.spaceBtwItems),
+                    Expanded(
+                      child: Text(
+                        maxLines: 2,
+                        item.address,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

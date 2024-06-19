@@ -35,37 +35,40 @@ class HomeScreen extends StatelessWidget {
             },
           ),
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(
-              "Pickup location - Home",
+              "Welcome",
               style: Theme.of(context)
                   .textTheme
-                  .bodySmall!
-                  .copyWith(color: TColors.white),
+                  .titleSmall
+                  ?.copyWith(color: TColors.white),
             ),
-            Text(
-              'sadashivgad,karwar - 581352',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium!
-                  .copyWith(color: TColors.white),
-            )
+            Gap(10),
+            Obx(
+              () => Text(
+                controller.user.value.username,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall
+                    ?.copyWith(color: TColors.white),
+              ),
+            ),
           ],
         ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              modelsheet(context);
-            },
-            icon: const Icon(Iconsax.arrow_down_14),
-            color: TColors.white,
-          ),
-          const SizedBox(
-            width: 20,
-          )
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () {
+        //       modelsheet(context);
+        //     },
+        //     icon: const Icon(Iconsax.arrow_down_14),
+        //     color: TColors.white,
+        //   ),
+        //   const SizedBox(
+        //     width: 20,
+        //   )
+        // ],
       ),
       drawer: Drawer(
         backgroundColor: TColors.primary,
@@ -154,10 +157,10 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-              Text(
-                'Good evening, kishan',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              // Text(
+              //   'Good evening, kishan',
+              //   style: Theme.of(context).textTheme.bodyMedium,
+              // ),
               const Gap(10),
               Text(
                 "What would you like to sell?",
@@ -218,14 +221,25 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(TSizes.defaultSpace),
-        child: ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: TColors.primary),
-            onPressed: () {
-              Get.to(() => const BookingScreen());
-            },
-            child: const Text("Raise pickup request")),
+      bottomNavigationBar: Obx(
+        () => Padding(
+          padding: const EdgeInsets.all(TSizes.defaultSpace),
+          child: bookingController.selectedCategories.value.length > 0
+              ? ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: TColors.primary,
+                  ),
+                  onPressed: () {
+                    Get.to(() => const BookingScreen());
+                  },
+                  child: Text("Raise pickup request"))
+              : ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: TColors.primary.withOpacity(0.4),
+                      side: BorderSide(color: Colors.transparent)),
+                  onPressed: () {},
+                  child: Text("Raise pickup request")),
+        ),
       ),
     );
   }

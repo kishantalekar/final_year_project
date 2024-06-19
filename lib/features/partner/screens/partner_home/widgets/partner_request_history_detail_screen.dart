@@ -21,17 +21,17 @@ Map<PickupStatus, Map<String, dynamic>> pickupStatusDetails = {
     'color': Colors.blue
   },
   PickupStatus.COMPLETED: {
-    'message': 'Your request has been completed',
+    'message': 'This pickup has been completed',
     'icon': Icons.done,
     'color': Colors.green
   },
   PickupStatus.CANCELLED: {
-    'message': 'Your request has been cancelled',
+    'message': 'This pickup  has been cancelled',
     'icon': Icons.cancel,
     'color': Colors.red
   },
   PickupStatus.REJECTED: {
-    'message': 'Your request has been rejected',
+    'message': 'This pickup has been rejected',
     'icon': Icons.thumb_down,
     'color': Colors.red
   },
@@ -46,8 +46,8 @@ Map<String, dynamic> getStatusDetails(PickupStatus status) {
       };
 }
 
-class PickupRequestDetailPage extends StatelessWidget {
-  const PickupRequestDetailPage({super.key, required this.item});
+class PartnerRequestHistoryDetailScreen extends StatelessWidget {
+  const PartnerRequestHistoryDetailScreen({super.key, required this.item});
 
   final PickupRequestModel item;
   @override
@@ -82,6 +82,48 @@ class PickupRequestDetailPage extends StatelessWidget {
                 ),
               ],
             ),
+            // const Gap(TSizes.spaceBtwSections),
+            // Container(
+            //   padding: const EdgeInsets.all(
+            //     TSizes.defaultSpace / 2,
+            //   ),
+            //   decoration: BoxDecoration(
+            //     borderRadius: BorderRadius.circular(12),
+            //     color: TColors.white,
+            //   ),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       Column(
+            //         crossAxisAlignment: CrossAxisAlignment.start,
+            //         children: [
+            //           Text(
+            //             "Schedule  time",
+            //             style: Theme.of(context).textTheme.labelMedium,
+            //           ),
+            //           const Gap(8),
+            //           Text(
+            //             THelperFunctions.getFormattedDate(item.scheduledTime),
+            //             style: Theme.of(context).textTheme.labelLarge,
+            //           ),
+            //         ],
+            //       ),
+            //       Column(
+            //         children: [
+            //           Text(
+            //             "Request id",
+            //             style: Theme.of(context).textTheme.labelMedium,
+            //           ),
+            //           const Gap(8),
+            //           Text(
+            //             item.id.substring(0, 8),
+            //             style: Theme.of(context).textTheme.labelLarge,
+            //           ),
+            //         ],
+            //       )
+            //     ],
+            //   ),
+            // ),
             const Gap(TSizes.spaceBtwSections),
             Container(
               padding: const EdgeInsets.all(
@@ -98,7 +140,7 @@ class PickupRequestDetailPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Schedule  time",
+                        "Placed by ${item.username}",
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
                       const Gap(8),
@@ -111,54 +153,12 @@ class PickupRequestDetailPage extends StatelessWidget {
                   Column(
                     children: [
                       Text(
-                        "Request id",
+                        "user id",
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
                       const Gap(8),
                       Text(
-                        item.id.substring(0, 8),
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            ),
-            const Gap(TSizes.spaceBtwSections),
-            Container(
-              padding: const EdgeInsets.all(
-                TSizes.defaultSpace / 2,
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: TColors.white,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.partnername,
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                      const Gap(8),
-                      Text(
-                        THelperFunctions.getFormattedDate(item.scheduledTime),
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        "parner id",
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                      const Gap(8),
-                      Text(
-                        item.id.substring(0, 8),
+                        item.userId.substring(0, 8),
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
                     ],
@@ -236,7 +236,7 @@ class PickupRequestDetailPage extends StatelessWidget {
                       ),
                       const Gap(8),
                       Text(
-                        "near ${item.address}",
+                        "${item.address}",
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
                     ],
@@ -245,106 +245,97 @@ class PickupRequestDetailPage extends StatelessWidget {
               ),
             ),
             Gap(TSizes.spaceBtwItems),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "\t\t\t\t\t\tBill details",
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
             if (item.pickupStatus == PickupStatus.COMPLETED)
-              Column(
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "\t\t\t\t\t\tBill details",
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
+              FittedBox(
+                child: DataTable(
+                  border: TableBorder(
+                    borderRadius: BorderRadius.circular(30),
                   ),
-                  FittedBox(
-                    child: DataTable(
-                      border: TableBorder(
-                        borderRadius: BorderRadius.circular(30),
+                  headingRowColor: MaterialStateProperty.resolveWith<Color?>(
+                      (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.hovered)) {
+                      return Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.08);
+                    }
+                    return Colors.green.shade100; // Use the default value.
+                  }),
+                  columns: [
+                    DataColumn(
+                      label: Text(
+                        "Material",
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      headingRowColor:
-                          MaterialStateProperty.resolveWith<Color?>(
-                              (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.hovered)) {
-                          return Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withOpacity(0.08);
-                        }
-                        return Colors.green.shade100; // Use the default value.
-                      }),
-                      columns: [
-                        DataColumn(
-                          label: Text(
-                            "Material",
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            "Rate",
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            "Qty",
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            "Amount",
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                        ),
-                      ],
-                      rows: item.items
-                          .map((item) => DataRow(cells: [
-                                DataCell(Text(
-                                  item.title,
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
-                                )),
-                                DataCell(
-                                  Text(
-                                    "${item.cost}",
-                                    style:
-                                        Theme.of(context).textTheme.titleMedium,
-                                  ),
-                                ),
-                                DataCell(Text(
-                                  item.unitType == UnitType.kg
-                                      ? "${item.kg}/kg"
-                                      : "${item.pcs}/pieces",
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
-                                )),
-                                DataCell(Text(
-                                  (item.cost * item.kg).toString(),
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
-                                )),
-                              ]))
-                          .toList(),
                     ),
+                    DataColumn(
+                      label: Text(
+                        "Rate",
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        "Qty",
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        "Amount",
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                    ),
+                  ],
+                  rows: item.items
+                      .map((item) => DataRow(cells: [
+                            DataCell(Text(
+                              item.title,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            )),
+                            DataCell(
+                              Text(
+                                "${item.cost}",
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ),
+                            DataCell(Text(
+                              item.unitType == UnitType.kg
+                                  ? "${item.kg}/kg"
+                                  : "${item.pcs}/pieces",
+                              style: Theme.of(context).textTheme.titleMedium,
+                            )),
+                            DataCell(Text(
+                              (item.cost * item.kg).toString(),
+                              style: Theme.of(context).textTheme.titleMedium,
+                            )),
+                          ]))
+                      .toList(),
+                ),
+              ),
+            Padding(
+              padding: EdgeInsets.all(TSizes.defaultSpace),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Total",
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  Padding(
-                    padding: EdgeInsets.all(TSizes.defaultSpace),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Total",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        Text(
-                          "₹${item.totalCost}",
-                          style: Theme.of(context).textTheme.titleLarge,
-                        )
-                      ],
-                    ),
+                  Text(
+                    "₹${item.totalCost}",
+                    style: Theme.of(context).textTheme.titleLarge,
                   )
                 ],
               ),
+            ),
             const SizedBox(
               height: 40,
             )

@@ -82,11 +82,14 @@ class _BillingScreenState extends State<BillingScreen> {
 
     void handlePay() {
       var options = {
-        'key': 'rzp_test_MnsRpPALxLbn0H',
+        'key': 'rzp_test_WHDwkn3KLG9Dqe',
         'amount': (widget.request.totalCost * 100).toInt(), // Amount in paise
         'name': 'Ecobarter',
         'description': 'Payment for scraps',
-        'prefill': {'contact': '8888888888', 'email': 'test@razorpay.com'}
+        'prefill': {
+          'contact': widget.request.number,
+          'email': 'test@razorpay.com'
+        }
       };
       try {
         _razorpay.open(options);
@@ -258,7 +261,8 @@ class _BillingScreenState extends State<BillingScreen> {
           padding: const EdgeInsets.all(TSizes.defaultSpace),
           child: controller.paymentMethod.value == PaymentMethods.cod
               ? ElevatedButton(
-                  child: const Text("Complete"),
+                  child: Text(
+                      "proceed to pay ₹${widget.request.totalCost} with cod"),
                   onPressed: () =>
                       PartnerController.instance.completePickup(widget.request),
                 )

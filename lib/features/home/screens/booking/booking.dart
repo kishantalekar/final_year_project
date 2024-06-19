@@ -190,24 +190,24 @@ class _BookingScreenState extends State<BookingScreen> {
                         const Gap(TSizes.spaceBtwSections / 2),
                         const Divider(),
                         const Gap(TSizes.spaceBtwSections / 2),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Any instructions",
-                              style: Theme.of(context).textTheme.labelLarge,
-                            ),
-                            const Gap(TSizes.spaceBtwItems / 2),
-                            TextFormField(
-                              maxLines: 4,
-                              decoration: InputDecoration(
-                                  hintText:
-                                      "Any instruction for our pickup executive",
-                                  hintStyle:
-                                      Theme.of(context).textTheme.labelMedium),
-                            )
-                          ],
-                        )
+                        // Column(
+                        //   crossAxisAlignment: CrossAxisAlignment.start,
+                        //   children: [
+                        //     Text(
+                        //       "Any instructions",
+                        //       style: Theme.of(context).textTheme.labelLarge,
+                        //     ),
+                        //     const Gap(TSizes.spaceBtwItems / 2),
+                        //     TextFormField(
+                        //       maxLines: 4,
+                        //       decoration: InputDecoration(
+                        //           hintText:
+                        //               "Any instruction for our pickup executive",
+                        //           hintStyle:
+                        //               Theme.of(context).textTheme.labelMedium),
+                        //     )
+                        //   ],
+                        // )
                       ],
                     ),
                   ],
@@ -217,12 +217,19 @@ class _BookingScreenState extends State<BookingScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ElevatedButton(
-          onPressed: _updateCurrentPageIndex,
-          child: const Text("Continue"),
-        ),
+      bottomNavigationBar: Obx(
+        () => Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: BookingController.instance.selectedSubCategories.length > 0
+                ? ElevatedButton(
+                    onPressed: _updateCurrentPageIndex,
+                    child: const Text("Continue"))
+                : ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: TColors.primary.withOpacity(0.4),
+                        side: BorderSide(color: Colors.transparent)),
+                    onPressed: () {},
+                    child: Text("Continue"))),
       ),
     );
   }
