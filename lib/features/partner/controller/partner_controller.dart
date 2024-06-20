@@ -111,7 +111,7 @@ class PartnerController extends GetxController {
       TFullScreenLoader.successSnackBar(
           title: "${status.name} successfully",
           message: "Please check it out.");
-      Get.to(() => PartnerNavigationMenu());
+      Get.off(() => PartnerNavigationMenu());
     } catch (e) {
       TFullScreenLoader.stopLoading();
       TFullScreenLoader.errorSnackBar(title: e.toString());

@@ -110,7 +110,7 @@ class PartnerSignupForm extends StatelessWidget {
           TextFormField(
             // validator: (value) =>
             //     TValidator.validateEmptyText('User name', value),
-            controller: controller.username,
+            controller: controller.address,
             decoration: const InputDecoration(
               labelText: "Address",
               prefixIcon: Icon(Iconsax.location),

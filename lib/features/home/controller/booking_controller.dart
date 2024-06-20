@@ -8,6 +8,7 @@ import 'package:final_year_project/features/home/screens/home_screens.dart';
 import 'package:final_year_project/features/partner/model/partner_model.dart';
 import 'package:final_year_project/utils/constants/image_strings.dart';
 import 'package:final_year_project/utils/popups/loaders.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart';
 
@@ -16,6 +17,8 @@ class BookingController extends GetxController {
 
   final UserController userController = UserController.instance;
   final BookingRepository bookingRepo = Get.put(BookingRepository());
+  final TextEditingController addressController = TextEditingController();
+
   var selectedCategories = <Categories>[].obs;
   var selectedBookingDate = DateTime.now()
       .add(
@@ -98,7 +101,7 @@ class BookingController extends GetxController {
         id: "",
         items: List<ScrapItem>.from(selectedSubCategories),
         scheduledTime: selectedBookingDate.value,
-        address: userController.user.value.address,
+        address: userController.user.value.address + addressController.text,
         userId: userController.user.value.id,
         partnerId: partner.id,
         username: userController.user.value.username,
@@ -117,6 +120,8 @@ class BookingController extends GetxController {
       TFullScreenLoader.stopLoading();
       TFullScreenLoader.errorSnackBar(
           title: 'Error while schedule ', message: e.toString());
+    } finally {
+      addressController.clear();
     }
   }
 

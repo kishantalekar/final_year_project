@@ -1,6 +1,7 @@
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:easy_stepper/easy_stepper.dart';
 import 'package:final_year_project/common/widgets/custom_shapes/container/rounded_container.dart';
+import 'package:final_year_project/data/repo/auth/auth_repository.dart';
 import 'package:final_year_project/features/home/controller/booking_controller.dart';
 import 'package:final_year_project/features/home/controller/user_controller.dart';
 import 'package:final_year_project/features/home/screens/booking/scrap_collector_search.dart';
@@ -12,6 +13,7 @@ import 'package:final_year_project/features/home/screens/booking/widgets/scrap_i
 import 'package:final_year_project/utils/constants/sizes.dart';
 import 'package:final_year_project/utils/helpers/helper_functions.dart';
 import 'package:get/get.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../utils/constants/colors.dart';
@@ -67,6 +69,52 @@ class _BookingScreenState extends State<BookingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var inputDecoration = InputDecoration(
+      errorMaxLines: 3,
+      prefixIconColor: TColors.darkGrey,
+      suffixIconColor: TColors.darkGrey,
+      // constraints: const BoxConstraints.expand(height: TSizes.inputFieldHeight),
+      labelStyle: const TextStyle()
+          .copyWith(fontSize: TSizes.fontSizeMd, color: TColors.black),
+      hintStyle: const TextStyle()
+          .copyWith(fontSize: TSizes.fontSizeSm, color: TColors.black),
+      errorStyle: const TextStyle().copyWith(fontStyle: FontStyle.normal),
+      floatingLabelStyle:
+          const TextStyle().copyWith(color: TColors.black.withOpacity(0.8)),
+      labelText: "Add additional info",
+      border: const UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.grey, // Set your desired color
+          width: 2.0, // Set your desired thickness
+        ),
+      ),
+      enabledBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.grey, // Set your desired color
+          width: 2.0, // Set your desired thickness
+        ),
+      ),
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: TColors.primary
+              .withOpacity(0.6), // Set your desired focus color (optional)
+          width: 2.0, // Set your desired thickness
+        ),
+      ),
+      errorBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.red, // Set your desired error color (optional)
+          width: 2.0, // Set your desired thickness
+        ),
+      ),
+      focusedErrorBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.red, // Set your desired error color (optional)
+          width: 2.0, // Set your desired thickness
+        ),
+      ),
+    );
+
     return Scaffold(
       appBar: const CustomAppBar(),
       body: Padding(
@@ -106,7 +154,9 @@ class _BookingScreenState extends State<BookingScreen> {
                           controller: _controller,
                           firstDate: _initialDate,
                           focusDate: _focusDate,
-                          lastDate: DateTime(2024, 12, 31),
+                          lastDate: DateTime.now().add(
+                            const Duration(days: 24),
+                          ),
                           onDateChange: (selectedDate) {
                             setState(() {
                               _focusDate = selectedDate;
@@ -160,13 +210,20 @@ class _BookingScreenState extends State<BookingScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Address - Home',
+                              'Address ',
                               style: Theme.of(context).textTheme.labelMedium,
                             ),
-                            Text(
-                              UserController.instance.user.value.address,
-                              style: Theme.of(context).textTheme.titleSmall,
+                            Obx(
+                              () => Text(
+                                "near ${UserController.instance.user.value.address}",
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
                             ),
+                            TextField(
+                              controller:
+                                  BookingController.instance.addressController,
+                              decoration: inputDecoration,
+                            )
                           ],
                         ),
                         const Gap(TSizes.spaceBtwSections / 2),
@@ -227,9 +284,9 @@ class _BookingScreenState extends State<BookingScreen> {
                 : ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         backgroundColor: TColors.primary.withOpacity(0.4),
-                        side: BorderSide(color: Colors.transparent)),
+                        side: const BorderSide(color: Colors.transparent)),
                     onPressed: () {},
-                    child: Text("Continue"))),
+                    child: const Text("Continue"))),
       ),
     );
   }

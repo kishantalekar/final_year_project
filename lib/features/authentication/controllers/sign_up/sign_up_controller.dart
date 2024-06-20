@@ -52,6 +52,7 @@ class SignUpController extends GetxController {
       final userCredential = await AuthenticationRepository.instance
           .registerWithEmailAndPassword(
               email.text.trim(), password.text.trim());
+
       // save authencticated user to firestore
 
       final newUser = UserModel(
@@ -67,7 +68,7 @@ class SignUpController extends GetxController {
           title: 'Congratulations',
           message: 'Your account has been created! verify email to continue');
 
-      Get.to(() => const LoginScreen());
+      AuthenticationRepository.instance.screenRedirect();
     } catch (e) {
       TFullScreenLoader.stopLoading();
       TFullScreenLoader.errorSnackBar(title: 'oh Snap!', message: e.toString());

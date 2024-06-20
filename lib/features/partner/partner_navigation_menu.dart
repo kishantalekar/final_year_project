@@ -1,4 +1,3 @@
-import 'package:final_year_project/features/partner/controller/partner_controller.dart';
 import 'package:final_year_project/features/partner/screens/manage/manage_screen.dart';
 import 'package:final_year_project/features/partner/screens/profile/partner_profile_screen.dart';
 import 'package:flutter/material.dart';

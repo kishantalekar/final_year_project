@@ -57,7 +57,7 @@ class PartnerSignupController extends GetxController {
           .registerWithEmailAndPassword(
               email.text.trim(), password.text.trim());
       if (userCredential.user != null) {
-        userCredential.user?.updateDisplayName('partner');
+        userCredential.user?.updateDisplayName('Partner');
       }
       // save authencticated user to firestore
 

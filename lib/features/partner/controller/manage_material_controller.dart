@@ -79,7 +79,14 @@ class MaterialManageController extends GetxController {
 
   void addMaterialToPartner() async {
     try {
-      if (rate.text.isEmpty) return;
+      if (selectedMaterialTitle == "Select") {
+        TFullScreenLoader.warningSnackBar(title: "select material");
+        return;
+      }
+      if (rate.text.isEmpty) {
+        TFullScreenLoader.warningSnackBar(title: "select rate");
+        return;
+      }
       TFullScreenLoader.openLoadingPage(
           "Adding item ", TImages.dockerAnimation);
 
@@ -101,7 +108,6 @@ class MaterialManageController extends GetxController {
         partnerScrapItems.add(selectedMaterialItem.value
             .copyWith(cost: double.parse(rate.text.trim())));
       }
-
       var previousScrapItems =
           partnerScrapItems.value.map((e) => e.toMap()).toList();
 

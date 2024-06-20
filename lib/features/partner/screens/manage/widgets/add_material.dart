@@ -162,8 +162,7 @@ class AddMaterialScreen extends StatelessWidget {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(TSizes.defaultSpace),
         child: ElevatedButton(
-          style:
-              ElevatedButton.styleFrom(backgroundColor: Colors.green.shade400),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           onPressed: () => controller.addMaterialToPartner(),
           child: const Text("Save"),
         ),

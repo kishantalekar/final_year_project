@@ -52,58 +52,62 @@ class PartnerHome extends StatelessWidget {
           Gap(10),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(TSizes.defaultSpace),
-          child: Column(
-            children: [
-              const Gap(20),
-              const Gap(20),
-              Row(
-                children: [
-                  Obx(
-                    () => GestureDetector(
-                      onTap: () => Get.to(() => PartnerPickupRequestScreen(
-                          requests: controller.pickupsPending)),
-                      child: RoundedContainer(
-                        showBorder: true,
-                        borderColor: TColors.black,
-                        width: THelperFunctions.screenWidth() * 0.4,
-                        height: 100,
-                        child: Center(
-                            child: Text(
-                          "Pickup request ${controller.pickupsPending.length}",
-                          textAlign: TextAlign.center,
-                        )),
+      body: RefreshIndicator(
+        onRefresh: () => controller.getAllSchedules(),
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(TSizes.defaultSpace),
+            child: Column(
+              children: [
+                const Gap(20),
+                const Gap(20),
+                Row(
+                  children: [
+                    Obx(
+                      () => GestureDetector(
+                        onTap: () => Get.to(() => PartnerPickupRequestScreen(
+                            requests: controller.pickupsPending)),
+                        child: RoundedContainer(
+                          showBorder: true,
+                          borderColor: TColors.black,
+                          width: THelperFunctions.screenWidth() * 0.4,
+                          height: 100,
+                          child: Center(
+                              child: Text(
+                            "Pickup request ${controller.pickupsPending.length}",
+                            textAlign: TextAlign.center,
+                          )),
+                        ),
                       ),
                     ),
-                  ),
-                  const Gap(20),
-                  Obx(
-                    () => GestureDetector(
-                      onTap: () => Get.to(() => PartnerPickupRequestScreen(
-                          requests: controller.pickupsOngoing)),
-                      child: RoundedContainer(
-                        showBorder: true,
-                        borderColor: TColors.black,
-                        width: THelperFunctions.screenWidth() * 0.4,
-                        height: 100,
-                        child: Center(
-                            child: Text(
-                          "Ongoing request ${controller.pickupsOngoing.length}",
-                          textAlign: TextAlign.center,
-                        )),
+                    const Gap(20),
+                    Obx(
+                      () => GestureDetector(
+                        onTap: () => Get.to(() => PartnerPickupRequestScreen(
+                            requests: controller.pickupsOngoing)),
+                        child: RoundedContainer(
+                          showBorder: true,
+                          borderColor: TColors.black,
+                          width: THelperFunctions.screenWidth() * 0.4,
+                          height: 100,
+                          child: Center(
+                              child: Text(
+                            "Ongoing request ${controller.pickupsOngoing.length}",
+                            textAlign: TextAlign.center,
+                          )),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const Gap(20),
-              Obx(() => SummaryCard(
-                  completed: controller.pickupsCompleted.length,
-                  rejected: controller.pickupsOnRejected.length,
-                  cancelled: controller.pickupsCancelled.length))
-            ],
+                  ],
+                ),
+                const Gap(20),
+                Obx(() => SummaryCard(
+                    completed: controller.pickupsCompleted.length,
+                    rejected: controller.pickupsOnRejected.length,
+                    cancelled: controller.pickupsCancelled.length))
+              ],
+            ),
           ),
         ),
       ),
