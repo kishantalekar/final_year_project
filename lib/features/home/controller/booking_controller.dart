@@ -103,6 +103,7 @@ class BookingController extends GetxController {
         scheduledTime: selectedBookingDate.value,
         address: userController.user.value.address + addressController.text,
         userId: userController.user.value.id,
+        email: userController.user.value.email,
         partnerId: partner.id,
         username: userController.user.value.username,
         partnername: partner.username,

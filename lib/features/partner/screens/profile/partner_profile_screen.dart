@@ -1,3 +1,4 @@
+import 'package:final_year_project/data/services/email_service.dart';
 import 'package:final_year_project/features/partner/controller/partner_controller.dart';
 import 'package:final_year_project/features/partner/screens/profile/change_name.dart';
 import 'package:final_year_project/features/partner/screens/profile/widgets/profile_menu.dart';
@@ -109,7 +110,7 @@ class PartnerProfileScreen extends StatelessWidget {
                       "log out",
                       style: TextStyle(color: Colors.red),
                     )),
-              )
+              ),
             ],
           ),
         ),

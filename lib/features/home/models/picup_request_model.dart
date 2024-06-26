@@ -9,6 +9,7 @@ import 'scrap_item.dart';
 
 class PickupRequestModel {
   final String userId;
+  final String email;
   final String username;
   final String partnerId;
   final String partnername;
@@ -23,6 +24,7 @@ class PickupRequestModel {
   PickupRequestModel(
       {required this.id,
       required this.username,
+      required this.email,
       required this.userId,
       required this.partnerId,
       required this.partnername,
@@ -37,6 +39,7 @@ class PickupRequestModel {
   PickupRequestModel copyWith(
       {String? id,
       String? userId,
+      String? email,
       String? partnerId,
       List<ScrapItem>? items,
       DateTime? scheduledTime,
@@ -49,6 +52,7 @@ class PickupRequestModel {
       String? number}) {
     return PickupRequestModel(
         id: id ?? this.id,
+        email: email ?? this.email,
         userId: userId ?? this.userId,
         username: username ?? this.username,
         partnerId: partnerId ?? this.partnerId,
@@ -65,6 +69,7 @@ class PickupRequestModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'userId': userId,
+      'email': email,
       'partnerId': partnerId,
       'items': items.map((x) => x.toMap()).toList(),
       'scheduledTime': scheduledTime.millisecondsSinceEpoch,
@@ -81,6 +86,7 @@ class PickupRequestModel {
 
   factory PickupRequestModel.fromMap(Map<String, dynamic> map) {
     return PickupRequestModel(
+      email: map['email'] as String,
       number: map['number'] as String,
       id: map['id'] as String,
       userId: map['userId'] as String,

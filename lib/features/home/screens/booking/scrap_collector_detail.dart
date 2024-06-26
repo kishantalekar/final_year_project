@@ -5,7 +5,10 @@ import 'package:final_year_project/features/home/models/scrap_item.dart';
 import 'package:final_year_project/features/partner/model/partner_model.dart';
 import 'package:final_year_project/utils/constants/colors.dart';
 import 'package:final_year_project/utils/constants/image_strings.dart';
+import 'package:final_year_project/utils/helpers/helper_functions.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -89,8 +92,11 @@ class ScrapCollectorDetailPage extends StatelessWidget {
               isAccepted
                   ? Row(
                       children: [
-                        Text(
-                            '${pickupPartner.username} accepts all items on your cart'),
+                        SizedBox(
+                          width: THelperFunctions.screenWidth()*0.7,
+                          child: Text(
+                              '${pickupPartner.username} accepts all items on your cart',style: TextStyle(),overflow: TextOverflow.ellipsis,),
+                        ),
                         Gap(20),
                         Icon(
                           Iconsax.tick_circle,
@@ -100,8 +106,11 @@ class ScrapCollectorDetailPage extends StatelessWidget {
                     )
                   : Row(
                       children: [
-                        Text(
-                            '${pickupPartner.username} Does not accept some items from your cart'),
+                        SizedBox(
+                          width: THelperFunctions.screenWidth()*0.7,
+                          child: Text(
+                              '${pickupPartner.username} Does not accept some items from your cart',maxLines: 2,),
+                        ),
                         Gap(20),
                         Icon(
                           Iconsax.close_circle,

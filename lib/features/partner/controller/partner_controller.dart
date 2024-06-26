@@ -9,8 +9,11 @@ import 'package:final_year_project/utils/constants/enums.dart';
 import 'package:final_year_project/utils/constants/image_strings.dart';
 import 'package:final_year_project/utils/popups/loaders.dart';
 import 'package:get/get.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 
 import '../../../core/custom_enums.dart';
+import '../../../data/services/email_service.dart';
 
 class PartnerController extends GetxController {
   // void logu
@@ -107,10 +110,49 @@ class PartnerController extends GetxController {
         final updatedRequest = request.copyWith(pickupStatus: status);
         allPickupSchedules[index] = updatedRequest;
       }
+
+      final emailService = EmailService();
+      String statusMessage;
+
+      if (status == PickupStatus.ACCEPTED) {
+        statusMessage = "accepted by ${request.partnername}";
+      } else if (status == PickupStatus.REJECTED) {
+        statusMessage = "rejected by ${request.partnername}";
+      } else {
+        statusMessage = status.status;
+      }
+
+      final emailData = EmailData(
+        recipientEmailAddress: request.email,
+        subject: "Pickup Status Update: ${request.id}",
+        text: """
+      Hello ${request.username},
+
+      Your pickup with ID ${request.id} has been ${statusMessage}.
+
+      Details:
+      - Scheduled Time: ${request.scheduledTime}
+      - Address: ${request.address}
+      - Items: ${request.items.map((item) => item.title).join(', ')}
+
+      Thank you for using Ecobarter!
+      """,
+        html: """
+      <p>Hello ${request.username},</p>
+      <p>Your pickup with ID <strong>${request.id}</strong> has been <strong>${statusMessage}</strong>.</p>
+      <p><strong>Details:</strong><br>
+      - Scheduled Time: ${request.scheduledTime}<br>
+      - Address: ${request.address}<br>
+      - Items: ${request.items.map((item) => item.title).join(', ')}</p>
+      <p>Thank you for using Ecobarter!</p>
+      """,
+      );
+      await sendEmail(emailData);
       TFullScreenLoader.stopLoading();
       TFullScreenLoader.successSnackBar(
           title: "${status.name} successfully",
           message: "Please check it out.");
+
       Get.off(() => PartnerNavigationMenu());
     } catch (e) {
       TFullScreenLoader.stopLoading();
@@ -134,6 +176,24 @@ class PartnerController extends GetxController {
 
       allPickupSchedules[index] = updatedRequest;
 
+      // Generate item details for the email
+      String itemDetailsText = request.items
+          .map((item) => "- ${item.title}: \₹${item.cost}")
+          .join('\n');
+      String itemDetailsHtml = request.items
+          .map((item) => "<li>${item.title}: \₹${item.cost}</li>")
+          .join('');
+
+      // Prepare email data
+      final emailData = EmailData(
+        recipientEmailAddress: request.email,
+        subject: "Pickup Completed: ${request.id}",
+        text:
+            "Hello ${request.username},\n\nYour pickup with ID ${request.id} has been completed successfully.\n\nDetails:\n- Scheduled Time: ${request.scheduledTime}\n- Address: ${request.address}\n- Items:\n${itemDetailsText}\n- Total Cost: \₹${request.totalCost}\n\nThis pickup was completed by ${request.partnername}.\n\nThank you for using Ecobarter!",
+        html:
+            "<p>Hello ${request.username},</p><p>Your pickup with ID <strong>${request.id}</strong> has been completed successfully.</p><p><strong>Details:</strong><br>- Scheduled Time: ${request.scheduledTime}<br>- Address: ${request.address}<br>- Items:<ul>${itemDetailsHtml}</ul></p><p>Total Cost: <strong>\₹${request.totalCost}</strong></p><p>This pickup was completed by <strong>${request.partnername}</strong>.</p><p>Thank you for using Ecobarter!</p>",
+      );
+      await sendEmail(emailData);
       TFullScreenLoader.stopLoading();
       TFullScreenLoader.successSnackBar(
           title: "completed successfully", message: "Please check it out.");
@@ -162,6 +222,33 @@ class PartnerController extends GetxController {
     } catch (e) {
       TFullScreenLoader.stopLoading();
       TFullScreenLoader.errorSnackBar(title: e.toString());
+    }
+  }
+
+  Future<void> sendEmail(EmailData emailData) async {
+    final smtpServer = SmtpServer(
+      'smtp.gmail.com',
+      port: 587,
+      username:
+          'kishantalekar024@gmail.com', // Replace with your Gmail username
+      password:
+          'cvnkykvniopqbvfp', // Replace with your Gmail password or App password if 2FA is enabled
+    );
+
+    final message = Message()
+      ..from = const Address('kishantalekar024@gmail.com',
+          "Ecobarter") // Replace with your Gmail address and name
+      ..recipients.add(emailData.recipientEmailAddress)
+      ..subject = emailData.subject
+      ..text = emailData.text
+      ..html = emailData.html;
+
+    try {
+      print("sending");
+      final sendReport = await send(message, smtpServer);
+      print('Message sent: ${sendReport}');
+    } catch (e) {
+      print('Error occurred while sending email: $e');
     }
   }
 

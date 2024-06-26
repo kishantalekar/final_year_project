@@ -9,6 +9,7 @@ class UserModel {
   final String profilePicture;
   final String address;
   final bool isPartner;
+
   UserModel({
     required this.id,
     required this.username,
